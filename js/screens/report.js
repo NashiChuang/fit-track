@@ -11,8 +11,14 @@ const METRICS = {
   totalVolume: { label: '總容量',     get: (p) => p.totalVolume },
   avgWeight:   { label: '平均重量',   get: (p) => p.avgWeight },
   totalReps:   { label: '總次數',     get: (p) => p.totalReps },
-  dualTop:     { label: '頂組雙線',   dual: true },
+  dualVA:      { label: '容量×平均',  dual: true },
 };
+// 移動平均：取過去 win 個點（含當前）的平均，看長期趨勢。
+const movingAvg = (arr, win) => arr.map((_, i) => {
+  const slice = arr.slice(Math.max(0, i - win + 1), i + 1).filter((v) => v != null);
+  return slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null;
+});
+const AVG_COLOR = '#f5a623';
 // 肌群指標（重量不可比，只看可加總的量）
 const MUSCLE_METRICS = {
   volume: { label: '總容量', get: (o) => o.volume },
@@ -29,6 +35,7 @@ export default async function report() {
   const sessionsById = new Map(allSessions.map((s) => [s.id, s]));
   const exercisesById = new Map(exList.map((e) => [e.id, e]));
   const settings = getSettings();
+  const avgWindow = Math.max(2, parseInt(settings.avgWindow, 10) || 4); // 移動平均視窗
 
   const screen = el('div', { class: 'screen' });
   if (!exList.length) {
@@ -147,10 +154,19 @@ export default async function report() {
       if (!chartWrap.isConnected) return; // 視圖已被切走（非同步重繪），不要產生孤兒圖表
       if (!chartWrap.querySelector('canvas')) chartWrap.replaceChildren(el('canvas', {}));
       const labels = trend.map((p) => p.date.slice(5));
-      const datasets = m.dual
-        ? [{ label: '頂組重量(kg)', data: trend.map((p) => p.topWeight), borderColor: '#5b8cff', backgroundColor: '#5b8cff', yAxisID: 'y', tension: .25 },
-           { label: '頂組次數', data: trend.map((p) => p.topReps), borderColor: '#34d399', backgroundColor: '#34d399', yAxisID: 'y1', tension: .25 }]
-        : [{ label: m.label, data: trend.map((p) => m.get(p)), borderColor: '#5b8cff', backgroundColor: '#5b8cff', tension: .25 }];
+      let datasets;
+      if (m.dual) {
+        datasets = [
+          { label: '總容量', data: trend.map((p) => p.totalVolume), borderColor: '#5b8cff', backgroundColor: '#5b8cff', yAxisID: 'y', tension: .25 },
+          { label: '平均重量(kg)', data: trend.map((p) => p.avgWeight), borderColor: '#34d399', backgroundColor: '#34d399', yAxisID: 'y1', tension: .25 },
+        ];
+      } else {
+        const main = trend.map((p) => m.get(p));
+        datasets = [
+          { label: m.label, data: main, borderColor: '#5b8cff', backgroundColor: '#5b8cff', tension: .25 },
+          { label: `過去${avgWindow}次平均`, data: movingAvg(main, avgWindow), borderColor: AVG_COLOR, backgroundColor: AVG_COLOR, borderDash: [6, 4], pointRadius: 0, tension: .3 },
+        ];
+      }
       chart = mkChart(chartWrap.querySelector('canvas').getContext('2d'), {
         type: 'line', data: { labels, datasets },
         options: {
@@ -225,9 +241,13 @@ export default async function report() {
       if (!window.Chart || !chartWrap.isConnected) return;
       if (!chartWrap.querySelector('canvas')) chartWrap.replaceChildren(el('canvas', {}));
       const labels = trend.map((p) => p.date.slice(5));
+      const main = trend.map((p) => m.get(p));
       chart = mkChart(chartWrap.querySelector('canvas').getContext('2d'), {
         type: 'line',
-        data: { labels, datasets: [{ label: m.label, data: trend.map((p) => m.get(p)), borderColor: MUSCLE_COLORS[muscle], backgroundColor: MUSCLE_COLORS[muscle], tension: .25 }] },
+        data: { labels, datasets: [
+          { label: m.label, data: main, borderColor: MUSCLE_COLORS[muscle], backgroundColor: MUSCLE_COLORS[muscle], tension: .25 },
+          { label: `過去${avgWindow}日平均`, data: movingAvg(main, avgWindow), borderColor: AVG_COLOR, backgroundColor: AVG_COLOR, borderDash: [6, 4], pointRadius: 0, tension: .3 },
+        ] },
         options: {
           responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
           plugins: { legend: { labels: { color: TICK } } },

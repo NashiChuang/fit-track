@@ -30,6 +30,17 @@ export default async function settings() {
     ]),
   ]));
 
+  // ---- 報表設定 ----
+  screen.append(el('h2', { class: 'section' }, ['報表設定']));
+  screen.append(el('div', { class: 'card stack' }, [
+    el('label', { class: 'row between' }, [
+      el('span', {}, ['趨勢平均線範圍（次/日）']),
+      el('input', { type: 'number', step: '1', min: '2', max: '20', value: String(s.avgWindow), style: 'width:100px',
+        onchange: (e) => { setSetting('avgWindow', Math.max(2, parseInt(e.target.value) || 4)); toast('已更新'); } }),
+    ]),
+    el('div', { class: 'tiny muted' }, ['報表單線圖會多畫一條「過去 N 次/日平均」，看長期是否在成長。']),
+  ]));
+
   // ---- 危險區 ----
   screen.append(el('h2', { class: 'section' }, ['危險區']));
   screen.append(el('div', { class: 'card stack' }, [
