@@ -1,0 +1,8 @@
+# 個人訓練資料（不上傳，避免公開）
+fit-track-import.json
+*.csv
+
+# 開發/工具用，部署不需要
+tools/
+.claude/
+node_modules/
