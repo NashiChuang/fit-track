@@ -1,6 +1,6 @@
 // 共用的「加入動作」挑選器：先選部位、再選動作。記錄頁與範本頁共用。
 import { el } from './ui.js';
-import { MUSCLES } from './state.js';
+import { MUSCLES, compareExercises } from './state.js';
 
 // opts: { exList, isAdded(ex)->bool, onPick(ex), title, emptyHint }
 // 只列出「還沒加入」的動作；選一個就加入並關閉。
@@ -8,7 +8,7 @@ export function openExercisePicker({ exList, isAdded = () => false, onPick, titl
   let part = null;
   const close = () => overlay.remove();
   const hasMuscle = (ex, m) => (ex.muscles || []).some((x) => x.muscle === m);
-  const sorted = exList.slice().sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+  const sorted = exList.slice().sort(compareExercises);
 
   const bar = el('div', { class: 'chips filter-bar' });
   const listWrap = el('div', { class: 'stack', style: 'max-height:52vh;overflow:auto' });

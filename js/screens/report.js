@@ -1,7 +1,7 @@
 // 報表：維度切換器（單動作 / 肌群 / 彙總），對應「強度」與「訓練量分配」兩個問題。
 import * as db from '../db.js';
 import { el, fmtNum } from '../ui.js';
-import { getSettings, setSetting, MUSCLES } from '../state.js';
+import { getSettings, setSetting, MUSCLES, compareExercises } from '../state.js';
 import { exerciseTrend, muscleDailyTrend } from '../metrics.js';
 
 // 單動作指標（重量可比，看強度）
@@ -31,7 +31,7 @@ export default async function report() {
   const [exList, allSessions, allSets] = await Promise.all([
     db.getAll('exercises'), db.getAll('sessions'), db.getAll('sets'),
   ]);
-  exList.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+  exList.sort(compareExercises);
   const sessionsById = new Map(allSessions.map((s) => [s.id, s]));
   const exercisesById = new Map(exList.map((e) => [e.id, e]));
   const settings = getSettings();

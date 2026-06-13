@@ -1,7 +1,7 @@
 // 動作庫 + 分部範本。兩個分頁。
 import * as db from '../db.js';
 import { el, esc, toast, confirmDialog, navigate } from '../ui.js';
-import { MUSCLES } from '../state.js';
+import { MUSCLES, compareExercises } from '../state.js';
 
 export default async function exercises(ctx) {
   const screen = el('div', { class: 'screen' });
@@ -33,7 +33,7 @@ export default async function exercises(ctx) {
   // ---------- 動作分頁 ----------
   async function renderExercises() {
     const list = await db.getAll('exercises');
-    list.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+    list.sort(compareExercises);
     const hasMuscle = (ex, m) => (ex.muscles || []).some((x) => x.muscle === m);
     const counts = Object.fromEntries(MUSCLES.map((m) => [m, list.filter((ex) => hasMuscle(ex, m)).length]));
 
