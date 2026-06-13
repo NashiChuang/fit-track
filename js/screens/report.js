@@ -89,7 +89,6 @@ export default async function report() {
     const switchWrap = el('div', { class: 'metric-switch' }, Object.entries(METRICS).map(([key, m]) =>
       el('button', { class: 'btn btn-sm', onclick: () => { metric = key; setSetting('lastMetric', key); redraw(); } }, [m.label])));
     const stats = el('div', { class: 'stat-grid' });
-    const density = el('div', { class: 'tiny muted' });
     const chartWrap = el('div', { class: 'chart-wrap' }, [el('canvas', {})]);
 
     function renderControls() {
@@ -111,7 +110,7 @@ export default async function report() {
       el('div', { class: 'card stack' }, [el('div', { class: 'tiny muted' }, ['先選部位，再選動作']), partBar,
         el('label', { class: 'field' }, [el('span', {}, ['動作']), exSelect])]),
       el('div', { class: 'card stack' }, [switchWrap, el('div', { class: 'tiny muted' }, ['只計算正式組，熱身組一律排除'])]),
-      stats, density,
+      stats,
       el('div', { class: 'card' }, [chartWrap]),
     );
     renderControls();
@@ -120,7 +119,7 @@ export default async function report() {
 
     async function redraw() {
       [...switchWrap.children].forEach((b, i) => b.classList.toggle('btn-primary', Object.keys(METRICS)[i] === metric));
-      if (!exId) { stats.replaceChildren(el('div', { class: 'empty', style: 'grid-column:1/-1' }, ['這個部位還沒有動作'])); density.replaceChildren(); return; }
+      if (!exId) { stats.replaceChildren(el('div', { class: 'empty', style: 'grid-column:1/-1' }, ['這個部位還沒有動作'])); return; }
       const rows = await db.setsByExercise(exId);
       const trend = exerciseTrend(rows, sessionsById, { includeWarmup: false });
       const m = METRICS[metric];
@@ -137,13 +136,6 @@ export default async function report() {
           stat('最近日期', latest.date),
         );
       }
-      // 資料密度：找出 >21 天的斷檔，不硬連成誤導趨勢
-      const gaps = [];
-      for (let i = 1; i < trend.length; i++) {
-        const d = (new Date(trend[i].date) - new Date(trend[i - 1].date)) / 86400000;
-        if (d > 21) gaps.push(`${trend[i - 1].date} → ${trend[i].date}（${Math.round(d)} 天）`);
-      }
-      density.replaceChildren(gaps.length ? document.createTextNode('⚠️ 期間有斷檔：' + gaps.join('、') + '；趨勢線跨斷檔僅供參考') : document.createTextNode(''));
 
       drawChart(trend, m);
     }
@@ -193,13 +185,12 @@ export default async function report() {
     const switchWrap = el('div', { class: 'metric-switch' }, Object.entries(MUSCLE_METRICS).map(([k, m]) =>
       el('button', { class: 'btn btn-sm', onclick: () => { mMetric = k; setSetting('lastMuscleMetric', k); redraw(); } }, [m.label])));
     const stats = el('div', { class: 'stat-grid' });
-    const density = el('div', { class: 'tiny muted' });
     const chartWrap = el('div', { class: 'chart-wrap' }, [el('canvas', {})]);
 
     root.append(
       el('label', { class: 'field' }, [el('span', {}, ['肌群']), muscleSelect]),
       el('div', { class: 'card stack' }, [switchWrap, el('div', { class: 'tiny muted' }, ['以「日」為單位的訓練量；只計算正式組，熱身組一律排除'])]),
-      stats, density,
+      stats,
       el('div', { class: 'card' }, [chartWrap]),
     );
     queueMicrotask(redraw); // 等 root 掛上畫面後再畫，避免被 isConnected 防孤兒擋掉
@@ -212,7 +203,6 @@ export default async function report() {
 
       if (!trend.length) {
         stats.replaceChildren(el('div', { class: 'empty', style: 'grid-column:1/-1' }, ['這個肌群還沒有紀錄']));
-        density.replaceChildren();
         if (chart) { chart.destroy(); chart = null; }
         return;
       }
@@ -225,13 +215,6 @@ export default async function report() {
         stat('訓練天數', String(trend.length)),
         stat('最近日期', latest.date),
       );
-
-      const gaps = [];
-      for (let i = 1; i < trend.length; i++) {
-        const d = (new Date(trend[i].date) - new Date(trend[i - 1].date)) / 86400000;
-        if (d > 21) gaps.push(`${trend[i - 1].date} → ${trend[i].date}（${Math.round(d)} 天）`);
-      }
-      density.textContent = gaps.length ? '⚠️ 期間有斷檔：' + gaps.join('、') + '；趨勢線跨斷檔僅供參考' : '';
 
       drawChart(trend, m);
     }
