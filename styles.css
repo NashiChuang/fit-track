@@ -177,8 +177,12 @@ label.field > span { font-size: 13px; color: var(--muted); }
   transition: opacity .2s, transform .2s;
 }
 .fab-today.hidden { opacity: 0; transform: translateY(10px); pointer-events: none; }
-.cal-months { display: flex; flex-direction: column; gap: 16px; }
+.cal-months { display: flex; flex-direction: column; gap: 14px; }
 .cal-spacer { height: 0; } /* 高度由 JS 動態設定，僅讓最後一個月能捲到頂 */
+/* 每個月一個外框，框內最上面標月份 */
+.cal-month { border: 1px solid var(--line); border-radius: 14px; padding: 10px;
+  display: flex; flex-direction: column; gap: 8px; }
+.cal-month-label { font-weight: 700; font-size: 15px; color: var(--text); }
 .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .cal-dowcell { text-align: center; color: var(--muted); font-size: 12px; padding: 2px 0; }
 .cal-cell { aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column;
