@@ -187,7 +187,7 @@ export default async function session(ctx) {
     }, [checked ? '✓' : '']);
 
     // 重量：直接輸入（不用加減）
-    const weightInput = el('input', { type: 'number', inputmode: 'decimal', step: String(settings.weightStep), value: String(s.weight), class: 'wfield' });
+    const weightInput = el('input', { type: 'number', inputmode: 'decimal', step: 'any', value: String(s.weight), class: 'wfield' });
     weightInput.onchange = () => { let v = Math.max(0, parseFloat(weightInput.value) || 0); v = Math.round(v * 100) / 100; weightInput.value = String(v); s.weight = v; db.put('sets', s); };
     const weight = el('div', { class: 'grow' }, [el('div', { class: 'tiny muted', style: 'text-align:center' }, ['kg']), weightInput]);
     // 次數：保留加減

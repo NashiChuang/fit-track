@@ -19,11 +19,6 @@ export default async function settings() {
   screen.append(el('h2', { class: 'section' }, ['輸入設定']));
   screen.append(el('div', { class: 'card stack' }, [
     el('label', { class: 'row between' }, [
-      el('span', {}, ['重量步進 (kg)']),
-      el('input', { type: 'number', step: '0.5', min: '0.5', value: String(s.weightStep), style: 'width:100px',
-        onchange: (e) => { setSetting('weightStep', parseFloat(e.target.value) || 2.5); toast('已更新'); } }),
-    ]),
-    el('label', { class: 'row between' }, [
       el('span', {}, ['次數步進']),
       el('input', { type: 'number', step: '1', min: '1', value: String(s.repStep), style: 'width:100px',
         onchange: (e) => { setSetting('repStep', parseInt(e.target.value) || 1); toast('已更新'); } }),

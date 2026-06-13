@@ -5,8 +5,7 @@ export const MUSCLES = ['胸', '背', '肩', '二頭', '三頭', '腿臀'];
 
 const SETTINGS_KEY = 'fit-track-settings';
 const DEFAULTS = {
-  weightStep: 2.5, // 重量 +/- 一次跳多少 kg
-  repStep: 1,      // 次數 +/- 一次跳多少
+  repStep: 1,      // 次數 +/- 一次跳多少（重量已改純輸入，不需步進）
   lastMetric: 'topWeight', // 報表上次選的指標
   avgWindow: 4,    // 報表移動平均線：取過去幾次/幾日
 };
