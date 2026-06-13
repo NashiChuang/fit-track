@@ -42,7 +42,8 @@ export default async function home() {
   const monthsWrap = el('div', { class: 'cal-months' });
   for (const { y, m } of months) monthsWrap.append(renderMonth(y, m));
   screen.append(monthsWrap);
-  screen.append(el('div', { class: 'cal-spacer' })); // 讓最後一個月也能捲到頂端
+  const spacer = el('div', { class: 'cal-spacer' }); // 讓最後一個月也能捲到頂（高度動態設定）
+  screen.append(spacer);
 
   // 懸浮「本月」鈕（浮在底部導覽列上方；已在本月時自動隱藏）
   const fab = el('button', { class: 'fab-today hidden', onclick: () => scrollToCurrent(true) }, ['本月']);
@@ -75,7 +76,12 @@ export default async function home() {
   // 開啟時捲到「本月」：等月曆尺寸確定後再量測捲動（ResizeObserver 首次回呼）
   const ro = new ResizeObserver(() => {
     ro.disconnect();
-    if (document.body.contains(monthLabel)) scrollToCurrent(false);
+    if (!document.body.contains(monthLabel)) return;
+    // 底部留白：剛好讓最後一個月能捲到頂端，不多留
+    const lastH = monthsWrap.lastElementChild ? monthsWrap.lastElementChild.getBoundingClientRect().height : 0;
+    const avail = window.innerHeight - stickyHead.getBoundingClientRect().bottom;
+    spacer.style.height = Math.max(0, avail - lastH - 12) + 'px';
+    scrollToCurrent(false);
   });
   ro.observe(monthsWrap);
 
