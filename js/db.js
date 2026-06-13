@@ -131,3 +131,15 @@ export async function importAll(payload, mode = 'replace') {
 export async function wipeAll() {
   await tx(STORES, 'readwrite', (t) => STORES.forEach((s) => t.objectStore(s).clear()));
 }
+
+// 預設資料：資料庫完全為空時，載入預設動作庫 + 範本（不含訓練紀錄）。
+import { SEED } from './seed.js';
+export async function ensureSeed() {
+  const [ex, sessions] = await Promise.all([getAll('exercises'), getAll('sessions')]);
+  if (ex.length || sessions.length) return false; // 已有任何資料就不種
+  await tx(['exercises', 'templates'], 'readwrite', (t) => {
+    (SEED.exercises || []).forEach((e) => t.objectStore('exercises').put(e));
+    (SEED.templates || []).forEach((tp) => t.objectStore('templates').put(tp));
+  });
+  return true;
+}

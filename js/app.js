@@ -1,5 +1,6 @@
 // App 入口：負責「現在該顯示哪個畫面」（hash 路由）、導覽列、Service Worker。
 import { $, $$, el, setRender, toast } from './ui.js';
+import { ensureSeed } from './db.js';
 import homeScreen from './screens/home.js';
 import exercisesScreen from './screens/exercises.js';
 import sessionScreen from './screens/session.js';
@@ -75,9 +76,8 @@ async function render() {
 
 setRender(render);
 window.addEventListener('hashchange', render);
-window.addEventListener('DOMContentLoaded', render);
-// DOMContentLoaded 可能已經過了（module 延後執行），保險起見直接跑一次
-if (document.readyState !== 'loading') render();
+// 首次啟動：資料庫為空時載入預設動作庫/範本，再開始渲染
+ensureSeed().catch(() => {}).then(render);
 
 // 註冊 Service Worker（可安裝 + 離線）
 if ('serviceWorker' in navigator) {

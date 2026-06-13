@@ -1,6 +1,6 @@
 // Service Worker — 讓 App 能離線開啟、可安裝到桌面。
 // 改版時把 CACHE 版本號 +1，舊快取會自動清掉。
-const CACHE = 'fit-track-v7';
+const CACHE = 'fit-track-v8';
 
 // App 殼層：第一次開啟時就快取起來，之後沒網路也能開。
 const SHELL = [
@@ -13,6 +13,7 @@ const SHELL = [
   './js/state.js',
   './js/ui.js',
   './js/metrics.js',
+  './js/seed.js',
   './js/exercise-picker.js',
   './js/screens/home.js',
   './js/screens/exercises.js',
