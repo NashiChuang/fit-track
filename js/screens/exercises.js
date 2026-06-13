@@ -5,7 +5,7 @@ import { MUSCLES } from '../state.js';
 
 export default async function exercises(ctx) {
   const screen = el('div', { class: 'screen' });
-  let tab = 'ex'; // 'ex' 動作 / 'tpl' 範本
+  let tab = ctx.params[0] === 'tpl' ? 'tpl' : 'ex'; // 可由 #/exercises/tpl 指定開在範本分頁
   let exFilter = null; // 部位篩選：null = 全部
 
   const tabs = el('div', { class: 'tabs' }, [
@@ -105,7 +105,7 @@ export default async function exercises(ctx) {
     listArea.replaceChildren(...nodes);
   }
 
-  switchTab('ex');
+  switchTab(tab);
   return screen;
 }
 

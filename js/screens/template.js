@@ -16,7 +16,7 @@ export default async function template(ctx) {
   ctx.setTitle(isNew ? '新增範本' : '編輯範本');
   ctx.setActions([
     isNew ? null : el('button', { class: 'btn btn-ghost btn-sm', style: 'color:var(--danger)', onclick: remove }, ['刪除']),
-    el('button', { class: 'btn btn-ghost btn-sm', onclick: () => navigate('#/exercises') }, ['取消']),
+    el('button', { class: 'btn btn-ghost btn-sm', onclick: () => navigate('#/exercises/tpl') }, ['取消']),
     el('button', { class: 'btn btn-primary btn-sm', onclick: save }, ['儲存']),
   ]);
 
@@ -79,13 +79,13 @@ export default async function template(ctx) {
     if (!tpl.exerciseIds.length) { toast('至少加入一個動作'); return; }
     tpl.name = name;
     await db.put('templates', tpl);
-    toast('已儲存'); navigate('#/exercises');
+    toast('已儲存'); navigate('#/exercises/tpl');
   }
 
   async function remove() {
     const ok = await confirmDialog(`刪除範本「${tpl.name}」？`, { danger: true, okText: '刪除' });
     if (!ok) return;
     await db.del('templates', tpl.id);
-    toast('已刪除'); navigate('#/exercises');
+    toast('已刪除'); navigate('#/exercises/tpl');
   }
 }
