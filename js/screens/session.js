@@ -186,7 +186,11 @@ export default async function session(ctx) {
       onclick: () => { s.done = !checked; db.put('sets', s); redraw(); },
     }, [checked ? '✓' : '']);
 
-    const weight = stepper(s.weight, settings.weightStep, 0, (v) => { s.weight = v; db.put('sets', s); }, 'kg');
+    // 重量：直接輸入（不用加減）
+    const weightInput = el('input', { type: 'number', inputmode: 'decimal', step: String(settings.weightStep), value: String(s.weight), class: 'wfield' });
+    weightInput.onchange = () => { let v = Math.max(0, parseFloat(weightInput.value) || 0); v = Math.round(v * 100) / 100; weightInput.value = String(v); s.weight = v; db.put('sets', s); };
+    const weight = el('div', { class: 'grow' }, [el('div', { class: 'tiny muted', style: 'text-align:center' }, ['kg']), weightInput]);
+    // 次數：保留加減
     const reps = stepper(s.reps, settings.repStep, 0, (v) => { s.reps = v; db.put('sets', s); }, '下');
 
     return el('div', { class: 'setrow2' + (s.isWarmup ? ' warm' : '') + (checked ? ' done-row' : '') }, [

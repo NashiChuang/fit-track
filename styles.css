@@ -21,8 +21,8 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.45;
   padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom));
 }
 
@@ -58,11 +58,11 @@ body {
   border-bottom: 1px solid var(--line);
   display: flex; flex-direction: column; gap: 10px;
 }
-h2.section { font-size: 15px; color: var(--muted); margin: 4px 0; font-weight: 600; }
+h2.section { font-size: 13px; color: var(--muted); margin: 4px 0; font-weight: 600; }
 
 /* ---- 卡片 ---- */
 .card { background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 14px; }
+  border-radius: var(--radius); padding: 12px; }
 .card.tap { cursor: pointer; }
 .card.tap:active { background: var(--surface-2); }
 .row { display: flex; align-items: center; gap: 10px; }
@@ -78,9 +78,9 @@ h2.section { font-size: 15px; color: var(--muted); margin: 4px 0; font-weight: 6
 /* ---- 按鈕 ---- */
 .btn {
   appearance: none; border: 1px solid var(--line); background: var(--surface-2);
-  color: var(--text); border-radius: 12px; padding: 12px 16px; font-size: 16px;
+  color: var(--text); border-radius: 12px; padding: 10px 14px; font-size: 14px;
   font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
-  justify-content: center; gap: 8px; min-height: 48px; user-select: none;
+  justify-content: center; gap: 8px; min-height: 42px; user-select: none;
 }
 .btn:active { transform: scale(.98); }
 .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
@@ -94,7 +94,7 @@ h2.section { font-size: 15px; color: var(--muted); margin: 4px 0; font-weight: 6
 /* ---- 表單 ---- */
 input, select, textarea {
   width: 100%; background: var(--surface-2); border: 1px solid var(--line);
-  color: var(--text); border-radius: 10px; padding: 12px; font-size: 16px;
+  color: var(--text); border-radius: 10px; padding: 10px; font-size: 14px;
 }
 label.field { display: flex; flex-direction: column; gap: 6px; }
 label.field > span { font-size: 13px; color: var(--muted); }
@@ -110,8 +110,8 @@ label.field > span { font-size: 13px; color: var(--muted); }
 }
 .chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
 .chip-n { margin-left: 6px; font-size: 12px; opacity: .75; font-weight: 700; }
-.filter-bar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
-.filter-bar .chip { white-space: nowrap; flex: 0 0 auto; }
+.filter-bar { flex-wrap: wrap; }
+.filter-bar .chip { white-space: nowrap; }
 .badge { font-size: 11px; padding: 2px 7px; border-radius: 999px;
   background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
 .badge.warm { color: var(--warm); border-color: var(--warm); }
@@ -130,10 +130,14 @@ label.field > span { font-size: 13px; color: var(--muted); }
 .stepper button:first-child { border-radius: 12px 0 0 12px; }
 .stepper button:last-child { border-radius: 0 12px 12px 0; }
 .stepper input { flex: 1; width: auto; min-width: 0; text-align: center; border-radius: 0;
-  border-left: none; border-right: none; font-size: 20px; font-weight: 700; -moz-appearance: textfield; }
+  border-left: none; border-right: none; font-size: 18px; font-weight: 700; -moz-appearance: textfield; }
 .stepper input::-webkit-outer-spin-button,
 .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .stepper button { flex: 0 0 46px; }
+/* 重量：純輸入（無加減）*/
+.wfield { text-align: center; font-size: 18px; font-weight: 700; min-height: 48px; -moz-appearance: textfield; }
+.wfield::-webkit-outer-spin-button,
+.wfield::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 /* ---- 一組的列（兩行式小卡；完成＝整列變綠，仿 FitFit）---- */
 .setrow2 { display: flex; flex-direction: column; gap: 8px; padding: 10px; margin-bottom: 8px;
@@ -228,12 +232,12 @@ label.field > span { font-size: 13px; color: var(--muted); }
 .modal-actions .btn { flex: 1; }
 
 /* ---- 指標切換器 ---- */
-.metric-switch { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+.metric-switch { display: flex; flex-wrap: wrap; gap: 6px; }
 .metric-switch button { white-space: nowrap; }
 .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
 .stat .k { font-size: 12px; color: var(--muted); }
-.stat .v { font-size: 22px; font-weight: 800; }
+.stat .v { font-size: 19px; font-weight: 800; }
 .chart-wrap { position: relative; height: 280px; }
 table.summary { width: 100%; border-collapse: collapse; font-size: 14px; }
 table.summary th, table.summary td { border: 1px solid var(--line); padding: 7px 9px; text-align: right; }
