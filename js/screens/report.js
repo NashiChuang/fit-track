@@ -84,7 +84,6 @@ export default async function report() {
     const stats = el('div', { class: 'stat-grid' });
     const density = el('div', { class: 'tiny muted' });
     const chartWrap = el('div', { class: 'chart-wrap' }, [el('canvas', {})]);
-    const detail = el('div', { class: 'stack' });
 
     function renderControls() {
       const mkChip = (label, n, on, val) =>
@@ -107,8 +106,6 @@ export default async function report() {
       el('div', { class: 'card stack' }, [switchWrap, el('div', { class: 'tiny muted' }, ['只計算正式組，熱身組一律排除'])]),
       stats, density,
       el('div', { class: 'card' }, [chartWrap]),
-      el('h2', { class: 'section' }, ['單次明細']),
-      detail,
     );
     renderControls();
     queueMicrotask(redraw); // 等 root 掛上畫面後再畫，避免被 isConnected 防孤兒擋掉
@@ -116,7 +113,7 @@ export default async function report() {
 
     async function redraw() {
       [...switchWrap.children].forEach((b, i) => b.classList.toggle('btn-primary', Object.keys(METRICS)[i] === metric));
-      if (!exId) { stats.replaceChildren(el('div', { class: 'empty', style: 'grid-column:1/-1' }, ['這個部位還沒有動作'])); detail.replaceChildren(); density.replaceChildren(); return; }
+      if (!exId) { stats.replaceChildren(el('div', { class: 'empty', style: 'grid-column:1/-1' }, ['這個部位還沒有動作'])); density.replaceChildren(); return; }
       const rows = await db.setsByExercise(exId);
       const trend = exerciseTrend(rows, sessionsById, { includeWarmup: false });
       const m = METRICS[metric];
@@ -142,11 +139,6 @@ export default async function report() {
       density.replaceChildren(gaps.length ? document.createTextNode('⚠️ 期間有斷檔：' + gaps.join('、') + '；趨勢線跨斷檔僅供參考') : document.createTextNode(''));
 
       drawChart(trend, m);
-      detail.replaceChildren(...trend.slice(-8).reverse().map((p) =>
-        el('div', { class: 'card row between' }, [
-          el('div', {}, [el('strong', {}, [p.date]), el('div', { class: 'small muted' }, [`容量 ${fmtNum(p.totalVolume)} · 總次數 ${p.totalReps}`])]),
-          el('div', { style: 'text-align:right' }, [el('div', {}, [`${fmtNum(p.topWeight)}kg × ${p.topReps}`]), el('div', { class: 'tiny muted' }, ['頂組'])]),
-        ])));
     }
 
     function drawChart(trend, m) {
