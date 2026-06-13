@@ -391,7 +391,7 @@ export const SEED = {
   "templates": [
     {
       "id": "b64541d8-041a-44de-9d47-75de44271e4b",
-      "name": "周三（胸+肩+二頭）",
+      "name": "範本（推日）",
       "exerciseIds": [
         "b7212335-963c-4a86-9abd-3614e3bdabe2",
         "77b38201-af86-4f3e-a117-605f42b7ceb7",
