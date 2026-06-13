@@ -179,15 +179,12 @@ export default async function report() {
     const stats = el('div', { class: 'stat-grid' });
     const density = el('div', { class: 'tiny muted' });
     const chartWrap = el('div', { class: 'chart-wrap' }, [el('canvas', {})]);
-    const detail = el('div', { class: 'stack' });
 
     root.append(
       el('label', { class: 'field' }, [el('span', {}, ['肌群']), muscleSelect]),
       el('div', { class: 'card stack' }, [switchWrap, el('div', { class: 'tiny muted' }, ['以「日」為單位的訓練量；只計算正式組，熱身組一律排除'])]),
       stats, density,
       el('div', { class: 'card' }, [chartWrap]),
-      el('h2', { class: 'section' }, ['單日明細']),
-      detail,
     );
     queueMicrotask(redraw); // 等 root 掛上畫面後再畫，避免被 isConnected 防孤兒擋掉
     return root;
@@ -199,7 +196,7 @@ export default async function report() {
 
       if (!trend.length) {
         stats.replaceChildren(el('div', { class: 'empty', style: 'grid-column:1/-1' }, ['這個肌群還沒有紀錄']));
-        detail.replaceChildren(); density.replaceChildren();
+        density.replaceChildren();
         if (chart) { chart.destroy(); chart = null; }
         return;
       }
@@ -221,11 +218,6 @@ export default async function report() {
       density.textContent = gaps.length ? '⚠️ 期間有斷檔：' + gaps.join('、') + '；趨勢線跨斷檔僅供參考' : '';
 
       drawChart(trend, m);
-      detail.replaceChildren(...trend.slice(-8).reverse().map((p) =>
-        el('div', { class: 'card row between' }, [
-          el('div', {}, [el('strong', {}, [p.date])]),
-          el('div', { style: 'text-align:right' }, [el('div', {}, [`容量 ${Math.round(p.volume)}`]), el('div', { class: 'tiny muted' }, [`總次數 ${p.reps}`])]),
-        ])));
     }
 
     function drawChart(trend, m) {
