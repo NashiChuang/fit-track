@@ -132,6 +132,17 @@ export async function wipeAll() {
   await tx(STORES, 'readwrite', (t) => STORES.forEach((s) => t.objectStore(s).clear()));
 }
 
+// CSV 匯入用：新增缺少的動作、清空並覆蓋訓練紀錄（sessions/sets），保留現有範本。
+export async function replaceLog({ newExercises = [], sessions = [], sets = [] }) {
+  await tx(['exercises', 'sessions', 'sets'], 'readwrite', (t) => {
+    newExercises.forEach((e) => t.objectStore('exercises').put(e));
+    t.objectStore('sessions').clear();
+    t.objectStore('sets').clear();
+    sessions.forEach((s) => t.objectStore('sessions').put(s));
+    sets.forEach((s) => t.objectStore('sets').put(s));
+  });
+}
+
 // 預設資料：資料庫完全為空時，載入預設動作庫 + 範本（不含訓練紀錄）。
 import { SEED } from './seed.js';
 export async function ensureSeed() {
