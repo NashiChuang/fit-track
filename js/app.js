@@ -31,11 +31,13 @@ const appbar = {
 };
 
 let currentRoute = 'home'; // 目前畫面（給返回鍵判斷階層用）
+let currentHash = '#/';     // 目前完整 hash（守衛維持正確網址用）
 
 async function render() {
   const { name, params } = parseHash();
   const route = ROUTES[name];
   currentRoute = name;
+  currentHash = location.hash || '#/';
 
   // 重設標題列
   appbar.titleEl().textContent = route.title;
@@ -101,7 +103,10 @@ async function confirmExit() {
   if (leave) { window.removeEventListener('popstate', onPop); history.go(-2); }
 }
 function onPop() {
-  history.pushState({ d: 1 }, ''); // 立即補回守衛，維持可攔截
+  history.pushState({ d: 1 }, '', currentHash); // 補回守衛並維持目前正確網址
+  // 有彈窗開著 → 返回鍵先關掉最上層彈窗（等同點背景取消，不儲存），不導航
+  const modals = document.querySelectorAll('.modal-overlay');
+  if (modals.length) { modals[modals.length - 1].click(); return; }
   const t = parentTarget(currentRoute);
   if (t) navigate(t);
   else confirmExit();
