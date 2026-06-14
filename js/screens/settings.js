@@ -15,7 +15,8 @@ export default async function settings() {
   screen.append(el('div', { class: 'card stack' }, [
     el('div', { class: 'small muted' }, ['資料只存在這支手機的瀏覽器裡，清快取/換機可能消失。養成定期「匯出 JSON」存到雲端硬碟的習慣。']),
     el('button', { class: 'btn btn-primary btn-block', onclick: exportJson }, ['⬇️ 匯出 JSON 備份']),
-    el('button', { class: 'btn btn-block', onclick: importJson }, ['⬆️ 匯入 JSON 還原']),
+    el('button', { class: 'btn btn-block', onclick: importJson }, ['⬆️ 匯入 JSON 還原（覆蓋）']),
+    el('button', { class: 'btn btn-block', onclick: mergeJson }, ['➕ 合併匯入 JSON（加進現有）']),
     el('div', { class: 'tiny muted', style: 'margin-top:4px' }, ['JSON＝完整備份（含動作庫/範本/紀錄）。CSV＝訓練紀錄，方便用試算表看；匯入 CSV 只覆蓋紀錄，動作庫與範本保留。']),
     el('button', { class: 'btn btn-block', onclick: exportCsv }, ['⬇️ 匯出 CSV（試算表）']),
     el('button', { class: 'btn btn-block', onclick: importCsv }, ['⬆️ 匯入 CSV']),
@@ -74,6 +75,25 @@ export default async function settings() {
         toast('已還原'); render();
       } catch (e) {
         toast('匯入失敗：' + (e.message || e));
+      }
+    };
+    document.body.append(input); input.click(); input.remove();
+  }
+
+  function mergeJson() {
+    const input = el('input', { type: 'file', accept: 'application/json,.json', style: 'display:none' });
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const payload = JSON.parse(await file.text());
+        const d = payload.data || {};
+        const ok = await confirmDialog(`合併匯入：加入 ${d.sessions?.length || 0} 次訓練、${d.exercises?.length || 0} 個新動作；現有資料保留。確定？`, { okText: '合併匯入' });
+        if (!ok) return;
+        await db.importAll(payload, 'merge');
+        toast('已合併匯入'); render();
+      } catch (e) {
+        toast('此檔無法使用');
       }
     };
     document.body.append(input); input.click(); input.remove();

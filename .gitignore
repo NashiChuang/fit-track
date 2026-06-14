@@ -1,5 +1,7 @@
 # 個人訓練資料（不上傳，避免公開）
 fit-track-import.json
+fit-track-add.json
+fit-track-fixed.json
 *.csv
 
 # 開發/工具用，部署不需要
