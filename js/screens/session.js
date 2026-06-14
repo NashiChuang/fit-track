@@ -165,11 +165,7 @@ export default async function session(ctx) {
         ]),
       ]),
       setList,
-      el('div', { class: 'row wrap', style: 'gap:8px' }, [
-        el('button', { class: 'btn btn-sm grow', onclick: () => copyLast(exId, redraw), disabled: sets.length ? null : true },
-          ['⧉ 複製上一組']),
-        el('button', { class: 'btn btn-sm btn-primary grow', onclick: () => addSet(exId, redraw) }, ['＋ 新增一組']),
-      ]),
+      el('button', { class: 'btn btn-primary btn-block', title: '複製上一組', onclick: () => addSet(exId, redraw) }, ['＋']),
     );
     return block;
   }
@@ -236,27 +232,20 @@ export default async function session(ctx) {
     }
   }
 
-  async function addSet(exId, redraw, base) {
+  // 「＋」＝複製上一組（重量/次數/正式或熱身照搬）；沒有上一組就帶上次頂組或空白。預設未完成。
+  async function addSet(exId, redraw) {
     const sets = setsByEx.get(exId) || (setsByEx.set(exId, []), setsByEx.get(exId));
     const last = sets[sets.length - 1];
     const hint = hintByEx.get(exId);
-    const seed = base || last || (hint ? { weight: hint.topWeight, reps: hint.topReps, isWarmup: false } : { weight: 0, reps: 0, isWarmup: false });
+    const seed = last || (hint ? { weight: hint.topWeight, reps: hint.topReps, isWarmup: false } : { weight: 0, reps: 0, isWarmup: false });
     const s = {
       id: db.uid(), sessionId: id, exerciseId: exId,
       setOrder: sets.length, weight: seed.weight ?? 0, reps: seed.reps ?? 0,
-      isWarmup: base ? !!base.isWarmup : false,
-      done: true, // 訓練中手動新增/複製的組＝當下完成，預設打勾
+      isWarmup: !!seed.isWarmup, done: false, // 新增的組預設「未完成」，做完再打勾
     };
     sets.push(s);
     await db.put('sets', s);
     redraw();
-  }
-
-  function copyLast(exId, redraw) {
-    const sets = setsByEx.get(exId) || [];
-    const last = sets[sets.length - 1];
-    if (!last) return;
-    addSet(exId, redraw, { weight: last.weight, reps: last.reps, isWarmup: last.isWarmup });
   }
 
   async function deleteSet(exId, s, redraw) {
@@ -347,8 +336,30 @@ export default async function session(ctx) {
     }
     session.committed = true;
     await db.put('sessions', session);
-    toast('已儲存紀錄');
-    navigate('#/');
+    if (isNew) showCongrats(() => navigate('#/')); // 只有「新訓練」完成才放鼓勵頁
+    else { toast('已儲存紀錄'); navigate('#/'); }
+  }
+
+  // 完成新訓練的鼓勵頁（3 版輪流）
+  function showCongrats(onClose) {
+    const variants = [
+      { emoji: '💪', title: '練完收工！', sub: '又完成一次訓練，實力正在累積。' },
+      { emoji: '🔥', title: '幹得好！', sub: '今天的努力都記下來了。' },
+      { emoji: '🎉', title: '達成！', sub: '堅持就是進步，我們下次見。' },
+    ];
+    const i = (parseInt(localStorage.getItem('congratsIdx') || '0', 10) || 0) % variants.length;
+    localStorage.setItem('congratsIdx', String(i + 1));
+    const v = variants[i];
+    const close = () => { overlay.remove(); onClose(); };
+    const overlay = el('div', { class: 'modal-overlay', onclick: (e) => { if (e.target === overlay) close(); } }, [
+      el('div', { class: 'modal congrats' }, [
+        el('div', { class: 'congrats-emoji' }, [v.emoji]),
+        el('div', { class: 'congrats-title' }, [v.title]),
+        el('div', { class: 'congrats-sub' }, [v.sub]),
+        el('button', { class: 'btn btn-primary btn-block', onclick: close }, ['完成']),
+      ]),
+    ]);
+    document.body.append(overlay);
   }
 
   // 取消：整筆新訓練丟棄（不存）。

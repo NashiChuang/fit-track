@@ -235,6 +235,11 @@ label.field > span { font-size: 13px; color: var(--muted); }
   width: 100%; max-width: 360px; overflow: hidden; }
 .modal-body { padding: 20px; font-size: 15px; }
 .modal-actions { display: flex; gap: 8px; padding: 0 16px 16px; }
+/* 完成新訓練的鼓勵頁 */
+.modal.congrats { text-align: center; padding: 26px 20px 20px; display: flex; flex-direction: column; gap: 6px; }
+.congrats-emoji { font-size: 60px; line-height: 1.1; }
+.congrats-title { font-size: 22px; font-weight: 800; }
+.congrats-sub { color: var(--muted); margin-bottom: 14px; }
 .modal-actions .btn { flex: 1; }
 
 /* ---- 指標切換器 ---- */

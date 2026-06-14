@@ -95,21 +95,27 @@ function parentTarget(name) {
   return '#/';                               // 動作庫/報表/設定/訓練 → 記錄
 }
 let exitAsking = false;
-async function confirmExit() {
+async function askExit() {
   if (exitAsking) return;
   exitAsking = true;
   const leave = await confirmDialog('要離開 App 嗎？', { okText: '確認離開', cancelText: '留下', danger: true });
   exitAsking = false;
-  if (leave) { window.removeEventListener('popstate', onPop); history.go(-2); }
+  if (leave) {
+    window.removeEventListener('popstate', onPop);
+    window.close();   // 安裝版 PWA：直接關閉
+    history.back();   // 後備：退回啟動前頁面 → 離開
+  } else {
+    history.pushState({ d: 1 }, '', currentHash); // 留下 → 重新補守衛
+  }
 }
 function onPop() {
-  history.pushState({ d: 1 }, '', currentHash); // 補回守衛並維持目前正確網址
   // 有彈窗開著 → 返回鍵先關掉最上層彈窗（等同點背景取消，不儲存），不導航
   const modals = document.querySelectorAll('.modal-overlay');
-  if (modals.length) { modals[modals.length - 1].click(); return; }
+  if (modals.length) { history.pushState({ d: 1 }, '', currentHash); modals[modals.length - 1].click(); return; }
   const t = parentTarget(currentRoute);
-  if (t) navigate(t);
-  else confirmExit();
+  if (t) { history.pushState({ d: 1 }, '', currentHash); navigate(t); return; }
+  // 在「記錄」按返回：此時已退到基底（無守衛）→ 詢問離開
+  askExit();
 }
 window.addEventListener('popstate', onPop);
 
