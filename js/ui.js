@@ -27,8 +27,10 @@ export function el(tag, attrs = {}, children = []) {
 }
 
 export function navigate(hash) {
-  if (location.hash === hash) render();
-  else location.hash = hash;
+  if (hash && hash[0] !== '#') hash = '#' + hash;
+  // 用 replaceState 換頁，不堆積瀏覽器歷史（返回鍵由 app.js 依階層處理）
+  if (location.hash !== hash) history.replaceState(history.state, '', hash);
+  render();
 }
 
 // 轉頁用：app.js 會把真正的 render 注入進來。
