@@ -94,28 +94,14 @@ function parentTarget(name) {
   if (name === 'template') return '#/exercises/tpl'; // 範本編輯 → 範本分頁
   return '#/';                               // 動作庫/報表/設定/訓練 → 記錄
 }
-let exitAsking = false;
-async function askExit() {
-  if (exitAsking) return;
-  exitAsking = true;
-  const leave = await confirmDialog('要離開 App 嗎？', { okText: '確認離開', cancelText: '留下', danger: true });
-  exitAsking = false;
-  if (leave) {
-    window.removeEventListener('popstate', onPop);
-    window.close();   // 安裝版 PWA：直接關閉
-    history.back();   // 後備：退回啟動前頁面 → 離開
-  } else {
-    history.pushState({ d: 1 }, '', currentHash); // 留下 → 重新補守衛
-  }
-}
 function onPop() {
-  // 有彈窗開著 → 返回鍵先關掉最上層彈窗（等同點背景取消，不儲存），不導航
+  history.pushState({ d: 1 }, '', currentHash); // 一律補回守衛，維持留在 App
+  // 有彈窗開著 → 先關掉最上層彈窗（等同點背景取消，不儲存），不導航
   const modals = document.querySelectorAll('.modal-overlay');
-  if (modals.length) { history.pushState({ d: 1 }, '', currentHash); modals[modals.length - 1].click(); return; }
+  if (modals.length) { modals[modals.length - 1].click(); return; }
   const t = parentTarget(currentRoute);
-  if (t) { history.pushState({ d: 1 }, '', currentHash); navigate(t); return; }
-  // 在「記錄」按返回：此時已退到基底（無守衛）→ 詢問離開
-  askExit();
+  if (t) navigate(t); // 子頁 → 回記錄
+  // 在「記錄」按返回：不做事，留在 App（要離開請用手機主畫面手勢）
 }
 window.addEventListener('popstate', onPop);
 
